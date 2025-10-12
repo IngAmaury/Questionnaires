@@ -71,9 +71,8 @@ project/
    ├─ arousal_scale.png
    └─ dominance_scale.png
 ```
-[!NOTE]
-> Use your own images; the app scales them to a uniform size.
-> If an image is missing, a warning text appears instead.
+> [!NOTE]
+> Use your own images; the app scales them to a uniform size. If an image is missing, a warning text appears instead.
 
 🏃‍♂️‍➡️ **Run**
 Use your favorite IDE to run the Python file "cuestionarios.py", or run it in the terminal from the folder where you downloaded the repository, like this:
