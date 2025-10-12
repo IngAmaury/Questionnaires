@@ -1,9 +1,9 @@
-# Driver Study Questionnaires GUI
+# 🚗📝 Driver Study Questionnaires GUI
 
 A friendly PyQt6 application to collect questionnaires during driving-simulator experiments.
 It guides the participant through an initial battery and then repeated inter-stage blocks, saving every answer to a CSV file (UTF-8).
 
-## Overview
+## 📍Overview
 
 This app shows large fonts and radio buttons to speed up data entry.
 It follows this sequence:
@@ -18,8 +18,8 @@ It follows this sequence:
     2. Stress Appraisal Measure (SAM–Stress) subset: items 2, 5, 8, 14, 20, 16, 22, 19, 24, 26 (0–4).
 Every response is appended immediately to "respuestas_cuestionarios.csv" (one row per item).
 
-## Features
-### Main Features
+## 🛠️ Features
+### 🔹 Main Features
 - Big UI: large fonts, clear radio buttons, images for SAM.
 - Sectioned flow: initial battery, then repeatable blocks with transition messages.
 - Robust saving: answers are written row-by-row to a CSV with UTF-8 BOM (Excel-friendly).
@@ -27,11 +27,11 @@ Every response is appended immediately to "respuestas_cuestionarios.csv" (one ro
 - SAM images: fixed size, centered; radio buttons can be overlaid on the images to save space.
 - Participant & stage metadata: each row includes timestamp, participant ID, block number, and stage label.
 
-### CSV Schema
+### 🔹 CSV Schema
 - Columns: timestamp, participant_id, block_id, stage_label, instrument, item_code, item_text, response, score
 - Example instruments: BAI, PSS, PSS_TOTAL, PANAS, SAM_Manikin, SAM_Stress.
 
-### Add a new questionnarie (quick guide)
+### 🔹 Add a new questionnarie (quick guide)
 Add the follow in the code inside "cuestionarios.py":
 1. Create an item list: NEWQ_ITEMS = ["Question 1", "Question 2", ...].
 2. Create options as (label, score) tuples, for example:
@@ -53,14 +53,14 @@ self.newq = QuestionGroup(
 [!TIP]
 > Tip: keep items and options in separate constants for easier maintenance and translations.
 
-## Requirements
+## 💻 Requirements
 * Python 3.9–3.12
 * PyQt6 (UI)
 * Pillow (optional, only if you later add image processing; not required now) 
 
-## Getting Started
+## 🎌 Getting Started
 
-**Folder structure**
+📁 **Folder structure**
 
 ```bash
 project/
@@ -75,7 +75,7 @@ project/
 > Use your own images; the app scales them to a uniform size.
 > If an image is missing, a warning text appears instead.
 
-**Run**
+🏃‍♂️‍➡️ **Run**
 Use your favorite IDE to run the Python file "cuestionarios.py", or run it in the terminal from the folder where you downloaded the repository, like this:
 ```python
 python cuestionarios.py
@@ -86,7 +86,7 @@ At start up:
 3. Choose Block # (1..n).
 4. Click Initial evaluation or Inter-stage block.
 
-## Usage
+## 🕹️ Usage
 - Initial evaluation runs BAI → PSS → PANAS.
     - You must answer all items in a page to continue.
     - PSS scores are stored already corrected (inverted items handled internally).
@@ -103,11 +103,11 @@ At start up:
     - Instructions text & alignment: pass instructions=... and instr_align=... to QuestionGroup, or add a QLabel under the page title (as done for SAM).
     - Messages between blocks: edit the text in the transition pages.
 
-## Language
+## 📕 Language
 - The UI and questionnaires are currently in Spanish.
 - You can translate items or add new language versions by duplicating the item lists.
 
-## License
+## 📜 License
 This project is licensed under the **MIT License**.  
 Copyright © 2025 Amaury Santiago Horta.
 See the [LICENSE](LICENSE) file for details.
