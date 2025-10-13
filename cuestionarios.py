@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (
     QMessageBox, QGroupBox, QComboBox, QSizePolicy, QStackedLayout
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtGui import QFont, QPixmap, QIcon
 
 # =========================
 # CONFIGURACIÓN GENERAL
@@ -101,22 +101,22 @@ SAM_STRESS_ALL = {
     2:"¿Esta situación te crea tensión?",
     3:"¿El resultado de esta situación es incontrolable por alguien más?",
     4:"¿Hay alguien o alguna agencia a la que puedas recurrir para pedir ayuda si la necesitas?",
-    5:"¿Esta situación te hace sentir ansioso?",
+    5:"¿La situación te hizo sentir ansioso?",
     6:"¿Esta situación tiene consecuencias importantes para ti?",
     7:"¿Esta situación va a tener un impacto positivo en ti?",
-    8:"¿Qué tan ansioso estabas por abordar este evento?",
+    8:"¿Qué tan ansioso estabas por abordar el evento?",
     9:"¿Cuánto te afectará el resultado de esta situación?",
     10:"¿Hasta qué punto puedes convertirte en una persona más fuerte debido a este problema?",
     11:"¿El resultado de esta situación será negativo?",
     12:"¿Tienes la capacidad de hacerlo bien en esta situación?",
     13:"¿Esta situación tiene implicaciones serias para ti?",
-    14:"¿Tienes lo necesario para hacerlo bien en esta situación?",
+    14:"¿Tuviste lo necesario para hacerlo bien en esa situación?",
     15:"¿Hubo ayuda disponible para mí para lidiar con este problema?",
-    16:"¿Esta situación superó o agotó mis recursos de afrontamiento?",
+    16:"¿La situación superó o agotó mis recursos de afrontamiento?",
     17:"¿Hubo suficientes recursos disponibles para ayudarme a lidiar con esta situación?",
     18:"¿Estaba fuera del poder de alguien hacer algo sobre esta situación?",
     19:"¿Qué tan emocionado estuviste pensando en el resultado de esta situación?",
-    20:"¿Qué tan amenazante fue esta situación?",
+    20:"¿Qué tan amenazante fue la situación?",
     21:"¿El problema fue irresoluble por alguien?",
     22:"¿Pude superar el problema?",
     23:"¿Hubo alguien que pudiera ayudarme a manejar este problema?",
@@ -126,7 +126,7 @@ SAM_STRESS_ALL = {
     27:"¿Esta situación tuvo consecuencias a largo plazo para mí?",
     28:"¿Esto iba a tener un impacto negativo en mí?",
 }
-SAM_STRESS_SUBSET_ORDER = [2,5,8,14,20,16,22,19,24,26]
+SAM_STRESS_SUBSET_ORDER = [2,8,14,20,16,5,22,19,24,26]
 SAM_STRESS_OPTIONS = [("0 Nada",0),("1 Poco",1),("2 Algo",2),("3 Mucho",3),("4 Demasiado",4)]
 
 # =========================
@@ -274,7 +274,7 @@ class SAMManikinWidget(QWidget):
         self.SCALE_W, self.SCALE_H = 600, 160
 
         layout = QVBoxLayout()
-        title = QLabel("Self-Assessment Manikin (Valencia, Activación, Dominio)")
+        title = QLabel("Maniquí de autoevaluación (Valencia, Activación, Dominio)")
         title.setFont(TITLE_FONT)
         layout.addWidget(title)
 
@@ -386,13 +386,13 @@ class SAMManikinWidget(QWidget):
 class SAMStressSubsetWidget(QuestionGroup):
     def __init__(self, participant_id: str, block_id: int, stage_label: str):
         items = [f"{k}. {SAM_STRESS_ALL[k]}" for k in SAM_STRESS_SUBSET_ORDER]
-        super().__init__("SAM (Stress Appraisal Measure) – Subconjunto", items,
+        super().__init__("Medida de evaluación del estrés (SAM) – Subconjunto", items,
                          SAM_STRESS_OPTIONS, participant_id, block_id, stage_label, item_prefix="SAMQ_",
                          instructions=SAM_STRESS_Instructions)
         # Sobrescribe el rotulado para conservar el código original
         for i, gb in enumerate(self.findChildren(QGroupBox), start=0):
             k = SAM_STRESS_SUBSET_ORDER[i]
-            gb.setTitle(f"{k}. {SAM_STRESS_ALL[k]}")
+            gb.setTitle(f"{SAM_STRESS_ALL[k]}")
 
     def save_to_csv(self):
         ts = datetime.now().isoformat(timespec="seconds")
@@ -484,6 +484,7 @@ class MainWindow(QWidget):
         super().__init__()
         self.setWindowTitle(APP_TITLE)
         self.resize(1100, 800)
+        self.setWindowIcon(QIcon("Sources/logo.ico"))
 
         # Fuente grande por defecto
         self.setFont(BIG_FONT)
@@ -555,7 +556,7 @@ class MainWindow(QWidget):
         self.block = payload["block_id"]
 
         intro = TransitionPage(
-            f"**Bloque {self.block}**\n\n"
+            f"Bloque {self.block}\n\n"
             "Responda la Escala de Autoevaluación con Maniquí (SAM: Valencia, Activación, Dominio).",
             self._block_sam_manikin
         )
