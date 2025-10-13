@@ -76,14 +76,9 @@ PANAS_INSTRUCTIONS = ("INSTRUCCIONES:\n"
                       "Esta escala consiste en una serie de palabras  que describen diferentes sentimientos y emociones. Lea cada palabra y marque la respuesta apropieada para usted.\n"
                       "Indique cómo se siente generalmente.")
 PANAS_ITEMS = [
-    # Positivos (PA)
-    "interesado/a","entusiasmado/a","fuerte","inspirado/a","alerta",
-    "activo/a","atento/a","decidido/a","orgulloso/a","emocionado/a",
-    # Negativos (NA)
-    "irritable","nervioso/a","culpable","temeroso/a","ansioso/a",
-    "inquieto/a","avergonzado/a","triste","hostil","asustado/a",
+    "Motivado/a","Molesto/a","Emocionado/a", "De malas","Firme", "Culpable","Temeroso/a","Agresivo/a","Entusiasmado/a","Estar orgulloso/a","Irritable","Alerta","Avergonzado/a","Inspirado/a","Nervioso/a", "Decidido/a", "Estar atento/a", "Inquieto/a", "Activo/a", "Inseguro/a"
 ]
-PANAS_OPTIONS = [("1 Muy poco o nada",1),("2 Algo",2),("3 Moderadamente",3),("4 Bastante",4),("5 Extremadamente",5)]
+PANAS_OPTIONS = [("Muy poco o nada",1),("Algo",2),("Moderadamente",3),("Bastante",4),("Extremadamente",5)]
 
 # --- SAM-manikin (valencia, activación, dominio) 1..5
 SAM_MANIKIN_ITEMS = [
@@ -127,7 +122,7 @@ SAM_STRESS_ALL = {
     28:"¿Esto iba a tener un impacto negativo en mí?",
 }
 SAM_STRESS_SUBSET_ORDER = [2,8,14,20,16,5,22,19,24,26]
-SAM_STRESS_OPTIONS = [("0 Nada",0),("1 Poco",1),("2 Algo",2),("3 Mucho",3),("4 Demasiado",4)]
+SAM_STRESS_OPTIONS = [("Nada",0),("Poco",1),("Algo",2),("Mucho",3),("Demasiado",4)]
 
 # =========================
 # UTILIDADES CSV
