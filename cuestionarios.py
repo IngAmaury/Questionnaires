@@ -125,6 +125,126 @@ SAM_STRESS_SUBSET_ORDER = [2,8,14,20,16,5,22,19,24,26]
 SAM_STRESS_OPTIONS = [("Nada",0),("Poco",1),("Algo",2),("Mucho",3),("Demasiado",4)]
 
 # =========================
+# INTERPRETACIÓN / RESÚMENES
+# =========================
+
+# ---- BAI
+def interpret_bai(total: int) -> str:
+    if total <= 7:
+        return "Minimal anxiety"
+    elif total <= 15:
+        return "Mild anxiety"
+    elif total <= 25:
+        return "Moderate anxiety"
+    else:
+        return "Severe anxiety"
+
+# ---- PSS
+def interpret_pss(total: int) -> str:
+    if total <= 18:
+        return "Low stress"
+    elif total <= 37:
+        return "Moderate stress"
+    else:
+        return "High stress"
+
+# ---- PANAS
+PANAS_POS_WORDS = {
+    "Motivado/a","Emocionado/a","Firme","Entusiasmado/a","Estar orgulloso/a",
+    "Alerta","Inspirado/a","Decidido/a","Estar atento/a","Activo/a"
+}
+PANAS_NEG_WORDS = {
+    "Molesto/a","De malas","Culpable","Temeroso/a","Agresivo/a",
+    "Irritable","Avergonzado/a","Nervioso/a","Inquieto/a","Inseguro/a"
+}
+
+# índices 1-based de PANAS positivos/negativos con respecto a PANAS_ITEMS
+PANAS_POS_IDX = {i for i, w in enumerate(PANAS_ITEMS, start=1) if w in PANAS_POS_WORDS}
+PANAS_NEG_IDX = {i for i, w in enumerate(PANAS_ITEMS, start=1) if w in PANAS_NEG_WORDS}
+
+def _band_10_25_26_35_36_50(x: int) -> str:
+    # Rango teórico 10..50 (10 ítems, escala 1..5)
+    if x <= 25:
+        return "Low"
+    elif x <= 35:
+        return "Moderate"
+    else:
+        return "High"
+
+def panas_summary(pa_sum: int, na_sum: int):
+    balance = pa_sum - na_sum
+    bal_label = "Negative" if balance < 0 else ("Balanced" if balance == 0 else "Positive")
+    pa_cat = _band_10_25_26_35_36_50(pa_sum)
+    na_cat = _band_10_25_26_35_36_50(na_sum)
+
+    # Etiqueta global (1–2 palabras, inglés)
+    if pa_cat == "High" and na_cat == "Low":
+        overall = "Optimal"
+    elif pa_cat == "Low" and na_cat == "High":
+        overall = "Distress"
+    elif pa_cat == "High" and na_cat == "High":
+        overall = "Ambivalent"
+    elif pa_cat == "Low" and na_cat == "Low":
+        overall = "Blunted affect"
+    else:
+        # respaldo por balance
+        overall = "Positive" if balance > 0 else ("Negative" if balance < 0 else "Balanced")
+
+    return {
+        "PA_sum": pa_sum, "NA_sum": na_sum, "PA_minus_NA": balance,
+        "PA_cat": pa_cat, "NA_cat": na_cat, "Balance_cat": bal_label,
+        "Overall": overall
+    }
+
+# ---- SAM-Manikin (cuadrante por Valence–Arousal y emoción)
+def sam_quadrant_and_emotion(V: int, A: int):
+    if V == 5 and A == 5:
+        return "Q0", "Neutral"
+    if V > 5 and A > 5:
+        return "Q1", "Elated"
+    if V < 5 and A > 5:
+        return "Q2", "Anxious/tense"
+    if V < 5 and A < 5:
+        return "Q3", "Tired/sadness"
+    if V > 5 and A < 5:
+        return "Q4", "Calm"
+    if V > 5 and A == 5:
+        return "Q1/Q4", "Happy"
+    if V == 5 and A > 5:
+        return "Q1/Q2", "Aroused"
+    if V < 5 and A == 5:
+        return "Q2/Q3", "Unhappy"
+    if V == 5 and A < 5:
+        return "Q3/Q4", "Quiet"
+    # fallback (no debería alcanzarse)
+    return "Q?", "Undefined"
+
+# ---- SAM-Stress (sumatorias y bandas)
+def _band_low_mod_high(sum_val: int, low_max: int, mod_max: int) -> str:
+    if sum_val <= low_max:
+        return "Low"
+    elif sum_val <= mod_max:
+        return "Moderate"
+    else:
+        return "High"
+
+def sam_stress_summary(scores_by_q: dict[int, int]):
+    # Aseguramos presencia; si falta alguna clave, tomamos 0
+    g = lambda *kk: sum(scores_by_q.get(k, 0) for k in kk)
+
+    s_stress = g(2,16,24,26)             # 0..16
+    s_threat = g(2,5)                     # 0..8
+    s_chall  = g(8,19)                    # 0..8
+    s_ctrl   = g(14,22)                   # 0..8
+
+    return {
+        "STRESS_sum": (s_stress, _band_low_mod_high(s_stress, 5, 10) + " stress"),
+        "THREAT_sum": (s_threat, _band_low_mod_high(s_threat, 2, 5) + " threat"),
+        "CHALLENGE_sum": (s_chall, _band_low_mod_high(s_chall, 2, 5) + " challenge"),
+        "CTRL_SELF_sum": (s_ctrl, _band_low_mod_high(s_ctrl, 2, 5) + " controllable-by-self"),
+    }
+
+# =========================
 # UTILIDADES CSV
 # =========================
 def ensure_csv_header(path: str):
@@ -254,7 +374,78 @@ class PSSWidget(QuestionGroup):
                         "PSS", code, txt, b.text(), score])
         # guardar total como fila resumen
         append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                    "PSS_TOTAL", "sum", "Suma de 14 ítems (con inversión)", "", total])
+                    "PSS_TOTAL", "sum", "Suma de 14 ítems", interpret_pss(total), total])
+        
+# BAI con total + interpretación
+class BAIWidget(QuestionGroup):
+    def __init__(self, instrument: str, items, options, participant_id: str, block_id: int, stage_label: str):
+        super().__init__(instrument, items, options, participant_id, block_id, stage_label, item_prefix='BAI_', instructions=BAI_INSTRUCTIONS)
+
+    def save_to_csv(self):
+        ts = datetime.now().isoformat(timespec="seconds")
+        total = 0
+        for idx, g in enumerate(self.groups, start=1):
+            b = g.checkedButton()
+            score = int(b.property("score"))
+            total += score
+            code = f"BAI_{idx}"
+            txt  = self.items[idx-1]
+            append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                        "BAI", code, txt, b.text(), score])
+
+        # Resumen: total + interpretación
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "BAI_SUMMARY", "total", "Total (0–63)", "", total])
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "BAI_SUMMARY", "interpretation", "Interpretation", interpret_bai(total), ""])
+
+# PANAS con PA / NA / PA-NA + categorías e interpretación global
+class PANASWidget(QuestionGroup):
+    def __init__(self, instrument: str, items, options, participant_id: str, block_id: int, stage_label: str):
+        super().__init__(instrument, items, options, participant_id, block_id, stage_label, item_prefix='PANAS_', instructions=PANAS_INSTRUCTIONS)
+
+    def save_to_csv(self):
+        ts = datetime.now().isoformat(timespec="seconds")
+        pa_sum = 0
+        na_sum = 0
+
+        for idx, g in enumerate(self.groups, start=1):
+            b = g.checkedButton()
+            score = int(b.property("score"))  # 1..5
+            code = f"PANAS_{idx}"
+            txt  = self.items[idx-1]
+
+            # Guardado por ítem
+            append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                        "PANAS", code, txt, b.text(), score])
+
+            # Acumuladores PA/NA
+            if idx in PANAS_POS_IDX:
+                pa_sum += score
+            elif idx in PANAS_NEG_IDX:
+                na_sum += score
+
+        info = panas_summary(pa_sum, na_sum)
+
+        # Filas de totales
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "PANAS_SUMMARY", "PA_sum", "Positive Affect (sum 10 items)", "", info["PA_sum"]])
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "PANAS_SUMMARY", "NA_sum", "Negative Affect (sum 10 items)", "", info["NA_sum"]])
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "PANAS_SUMMARY", "PA_minus_NA", "Balance (PA - NA)", "", info["PA_minus_NA"]])
+
+        # Clasificaciones
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "PANAS_SUMMARY", "PA_cat", "PA category", info["PA_cat"], ""])
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "PANAS_SUMMARY", "NA_cat", "NA category", info["NA_cat"], ""])
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "PANAS_SUMMARY", "Balance_cat", "Balance category", info["Balance_cat"], ""])
+
+        # Interpretación global
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "PANAS_SUMMARY", "Overall", "Overall affective state", info["Overall"], ""])
 
 # SAM-manikin simple (3 preguntas, 1..9) con imagen horizontal de tamaño uniforme
 class SAMManikinWidget(QWidget):
@@ -371,11 +562,21 @@ class SAMManikinWidget(QWidget):
     def save_to_csv(self):
         ts = datetime.now().isoformat(timespec="seconds")
         names = ["Valencia","Activación","Dominio"]
+        vals = []
         for i, g in enumerate(self.groups):
             b = g.checkedButton()
-            score = b.property("score")
+            score = int(b.property("score"))
+            vals.append(score)
             append_row([ts, self.participant_id, self.block_id, self.stage_label,
                         "SAM_Manikin", names[i], names[i], str(score), score])
+            
+        # Resumen por cuadrante (Valence–Arousal)
+        V, A = vals[0], vals[1]
+        quadrant, emotion = sam_quadrant_and_emotion(V, A)
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "SAM_Manikin_SUMMARY", "quadrant", "Quadrant by Valence–Arousal", quadrant, ""])
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "SAM_Manikin_SUMMARY", "interpretation", "Emotion", emotion, ""])
 
 # SAM-estrés (subset)
 class SAMStressSubsetWidget(QuestionGroup):
@@ -389,14 +590,39 @@ class SAMStressSubsetWidget(QuestionGroup):
             k = SAM_STRESS_SUBSET_ORDER[i]
             gb.setTitle(f"{SAM_STRESS_ALL[k]}")
 
-    def save_to_csv(self):
-        ts = datetime.now().isoformat(timespec="seconds")
-        for i, g in enumerate(self.groups):
-            k = SAM_STRESS_SUBSET_ORDER[i]
-            b = g.checkedButton()
-            score = b.property("score")
+        def save_to_csv(self):
+            ts = datetime.now().isoformat(timespec="seconds")
+            scores_by_q = {}
+            for i, g in enumerate(self.groups):
+                k = SAM_STRESS_SUBSET_ORDER[i]
+                b = g.checkedButton()
+                score = int(b.property("score"))
+                scores_by_q[k] = score
+                append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                            "SAM_Stress", f"Question{k}", SAM_STRESS_ALL[k], b.text(), score])
+
+            # Resúmenes solicitados
+            sums = sam_stress_summary(scores_by_q)
+
+            # 2,16,24,26 -> stress level
+            s, label = sums["STRESS_sum"]
             append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                        "SAM_Stress", f"Q{k}", SAM_STRESS_ALL[k], b.text(), score])
+                        "SAM_Stress_SUMMARY", "stress_level", "Stress Score", label, s/16])
+
+            # 2+5 -> threat
+            s, label = sums["THREAT_sum"]
+            append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                        "SAM_Stress_SUMMARY", "threat_sum", "Threat Score", label, s/8])
+
+            # 8+19 -> challenge
+            s, label = sums["CHALLENGE_sum"]
+            append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                        "SAM_Stress_SUMMARY", "challenge_sum", "Challenge Score", label, s/8])
+
+            # 14+22 -> controllable-by-self
+            s, label = sums["CTRL_SELF_sum"]
+            append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                        "SAM_Stress_SUMMARY", "ctrl_self_sum", "Ctrl-self score", label, s/8])
 
 # =========================
 # PÁGINAS DE FLUJO
@@ -500,11 +726,10 @@ class MainWindow(QWidget):
         if not payload: return
         self.pid = payload["participant_id"]
         self.stage = payload["stage_label"]
-        self.block = payload["block_id"]  # puede ser 1 o el que decidas
+        self.block = payload["block_id"]
         # BAI
-        self.bai = QuestionGroup("Inventario de Ansiedad de Beck (BAI)",
-                                 BAI_ITEMS, BAI_OPTIONS, self.pid, self.block, self.stage, "BAI_",
-                                 BAI_INSTRUCTIONS)
+        self.bai = BAIWidget("Inventario de Ansiedad de Beck (BAI)",
+                             BAI_ITEMS, BAI_OPTIONS, self.pid, self.block, self.stage)
         self.bai.prev_btn.clicked.connect(self.go_start)
         self.bai.next_btn.clicked.connect(self._bai_next)
         self.stack.addWidget(self.bai); self.stack.setCurrentWidget(self.bai)
@@ -526,8 +751,8 @@ class MainWindow(QWidget):
             return
         self.pss.save_to_csv()
         # PANAS
-        self.panas = QuestionGroup("Escala de Afectividad Positiva y Negativa (PANAS) (versión corta en castellano)",
-                                   PANAS_ITEMS, PANAS_OPTIONS, self.pid, self.block, self.stage, "PANAS_", PANAS_INSTRUCTIONS)
+        self.panas = PANASWidget("Escala de Afectividad Positiva y Negativa (PANAS) (versión corta en castellano)",
+                                 PANAS_ITEMS, PANAS_OPTIONS, self.pid, self.block, self.stage)
         self.panas.prev_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.pss))
         self.panas.next_btn.clicked.connect(self._panas_next)
         self.stack.addWidget(self.panas); self.stack.setCurrentWidget(self.panas)
