@@ -103,6 +103,108 @@ At start up:
     - Instructions text & alignment: pass instructions=... and instr_align=... to QuestionGroup, or add a QLabel under the page title (as done for SAM).
     - Messages between blocks: edit the text in the transition pages.
 
+## Test results interpretations
+
+The system saves each response and adds summary rows per instrument in the CSV with the following columns:
+
+```bash
+timestamp, participant_id, block_id, stage_label, instrument, item_code, item_text, response, score
+```
+In the answers per item, *response* is the chosen label and *score* is the numerical value.
+In the summary rows (or score sum), *response* usually contains the interpretation (in English) and *score* the total (or the normalized value in SAM-stress, see below).
+---
+### BAI — Beck Anxiety Inventory
+- Scale per item: 0–3
+- Total: sum of 21 ítems → range 0–63.
+- Interpretation:
+    - 0–7 → Minimal anxiety
+    - 8–15 → Mild anxiety
+    - 16–25 → Moderate anxiety
+    - 26–63 → Severe anxiety
+- CSV (summary):
+    - instrument=BAI_SUMMARY, item_code=total, item_text=Total (0–63), response=<interpretación>, score=<suma>
+
+--- 
+### PSS — Perceived Stress Scale (14 items)
+- Scale per ítem: 0–4
+- Reversed items : 4, 5, 6, 7, 9, 10, 13 (scored as 4-0).
+- Total: sum of 14 items (with reversal already applied) → range 0–56.
+- Interpretation:
+    - 0–18 → Low stress
+    - 19–37 → Moderate stress
+    - 38–56 → High stress
+- CSV (summary):
+    - instrument=PSS_TOTAL, item_code=sum, item_text=Suma de 14 ítems, response=<interpretación>, score=<suma>
+
+### PANAS — Positive and Negative Affect Schedule (short form)
+
+- Per-item scale: 1–5
+- Subscales (10 items each):
+    - Positive Affect (PA) — in the app these items are labeled (Spanish): Motivado/a, Emocionado/a, Firme, Entusiasmado/a, Estar orgulloso/a, Alerta, Inspirado/a, Decidido/a, Estar atento/a, Activo/a.
+    - Negative Affect (NA) — in the app these items are labeled (Spanish): Molesto/a, De malas, Culpable, Temeroso/a, Agresivo/a, Irritable, Avergonzado/a, Nervioso/a, Inquieto/a, Inseguro/a.
+- Totals and ranges:
+    - PA_sum = sum of PA items (range 10–50)
+        - 10–25 → Low · 26–35 → Moderate · 36–50 → High
+    - NA_sum = sum of NA items (range 10–50)
+        - 10–25 → Low · 26–35 → Moderate · 36–50 → High
+    - PA_minus_NA = PA_sum − NA_sum (range −40…+40)
+        - < 0 → Negative · = 0 → Balanced · > 0 → Positive
+- Overall label (1–2 words, English):
+    - PA High + NA Low → Optimal
+    - PA Low + NA High → Distress
+    - PA High + NA High → Ambivalent
+    - PA Low + NA Low → Blunted affect
+    (If none of the four patterns matches cleanly, the balance is used: Positive, Balanced, or Negative.)
+- CSV (summary rows):
+    - instrument=PANAS_SUMMARY, item_code=PA_sum, item_text=Positive Affect (sum 10 items), response="", score=<PA_sum>
+    - instrument=PANAS_SUMMARY, item_code=NA_sum, item_text=Negative Affect (sum 10 items), response="", score=<NA_sum>
+    - instrument=PANAS_SUMMARY, item_code=PA_minus_NA, item_text=Balance (PA - NA), response="", score=<PA-NA>
+    - instrument=PANAS_SUMMARY, item_code=PA_cat|NA_cat|Balance_cat, response=<Low/Moderate/High or Balance>, score=""
+    - instrument=PANAS_SUMMARY, item_code=Overall, item_text=Overall affective state, response=<Optimal/Distress/Ambivalent/Blunted affect/...>, score=""
+
+### SAM-Manikin — Valence / Arousal / Dominance
+
+- Per-dimension scale: 1–9 (the midpoint is 5).
+- Quadrant (Valence–Arousal) and emotion:
+    - V=5 & A=5 → Q0, Neutral
+    - V>5 & A>5 → Q1, Elated
+    - V<5 & A>5 → Q2, Anxious/tense
+    - V<5 & A<5 → Q3, Tired/sadness
+    - V>5 & A<5 → Q4, Calm
+    - V>5 & A=5 → Q1/Q4, Happy
+    - V=5 & A>5 → Q1/Q2, Aroused
+    - V<5 & A=5 → Q2/Q3, Unhappy
+    - V=5 & A<5 → Q3/Q4, Quiet
+
+- CSV (summary rows):
+    - instrument=SAM_Manikin_SUMMARY, item_code=quadrant, item_text=Quadrant by Valence–Arousal, response=<Q...>, score=""
+    - instrument=SAM_Manikin_SUMMARY, item_code=interpretation, item_text=Emotion, response=<emotion>, score=""
+
+### SAM-Stress — Subscales and normalization
+
+- Items used: 2, 5, 8, 14, 20, 16, 22, 19, 24, 26.
+- Per-item scale: 0–4.
+- Raw sums and categories:
+    - Stress = 2 + 16 + 24 + 26 → range 0–16
+        - 0–5 → Low stress · 6–10 → Moderate stress · 11–15 → High stress
+    - Threat = 2 + 5 → range 0–8
+        - 0–2 → Low threat · 3–5 → Moderate threat · 6–8 → High threat
+    - Challenge = 8 + 19 → range 0–8
+        - 0–2 → Low challenge · 3–5 → Moderate challenge · 6–8 → High challenge
+    - Controllable-by-self = 14 + 22 → range 0–8
+        - 0–2 → Low controllable-by-self · 3–5 → Moderate controllable-by-self · 6–8 → High controllable-by-self
+-    Normalization (applied in CSV): each summary score is stored normalized to [0, 1] by dividing by the subscale’s maximum. The category is computed before normalization and written in response.
+    - stress_level: score = (Q2+Q16+Q24+Q26) / 16
+    - threat_sum: score = (Q2+Q5) / 8
+    - challenge_sum: score = (Q8+Q19) / 8
+    - ctrl_self_sum: score = (Q14+Q22) / 8
+- CSV (summary rows):
+    - instrument=SAM_Stress_SUMMARY, item_code=stress_level, item_text=Stress Score, response=<Low/Moderate/High stress>, score=<sum/16>
+    - instrument=SAM_Stress_SUMMARY, item_code=threat_sum, item_text=Threat Score, response=<Low/Moderate/High threat>, score=<sum/8>
+    - instrument=SAM_Stress_SUMMARY, item_code=challenge_sum, item_text=Challenge Score, response=<Low/Moderate/High challenge>, score=<sum/8>
+    - instrument=SAM_Stress_SUMMARY, item_code=ctrl_self_sum, item_text=Ctrl-self score,response=<Low/Moderate/High controllable-by-self>, score=<sum/8>
+---
+
 ## 📕 Language
 - The UI and questionnaires are currently in Spanish.
 - You can translate items or add new language versions by duplicating the item lists.
