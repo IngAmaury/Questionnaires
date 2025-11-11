@@ -110,9 +110,12 @@ The system saves each response and adds summary rows per instrument in the CSV w
 ```bash
 timestamp, participant_id, block_id, stage_label, instrument, item_code, item_text, response, score
 ```
+
 In the answers per item, *response* is the chosen label and *score* is the numerical value.
 In the summary rows (or score sum), *response* usually contains the interpretation (in English) and *score* the total (or the normalized value in SAM-stress, see below).
+
 ---
+
 ### BAI — Beck Anxiety Inventory
 - Scale per item: 0–3
 - Total: sum of 21 ítems → range 0–63.
