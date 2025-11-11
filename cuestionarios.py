@@ -395,9 +395,7 @@ class BAIWidget(QuestionGroup):
 
         # Resumen: total + interpretación
         append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                    "BAI_SUMMARY", "total", "Total (0–63)", "", total])
-        append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                    "BAI_SUMMARY", "interpretation", "Interpretation", interpret_bai(total), ""])
+                    "BAI_SUMMARY", "total", "Total (0–63)", interpret_bai(total), total])
 
 # PANAS con PA / NA / PA-NA + categorías e interpretación global
 class PANASWidget(QuestionGroup):
@@ -590,39 +588,39 @@ class SAMStressSubsetWidget(QuestionGroup):
             k = SAM_STRESS_SUBSET_ORDER[i]
             gb.setTitle(f"{SAM_STRESS_ALL[k]}")
 
-        def save_to_csv(self):
-            ts = datetime.now().isoformat(timespec="seconds")
-            scores_by_q = {}
-            for i, g in enumerate(self.groups):
-                k = SAM_STRESS_SUBSET_ORDER[i]
-                b = g.checkedButton()
-                score = int(b.property("score"))
-                scores_by_q[k] = score
-                append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                            "SAM_Stress", f"Question{k}", SAM_STRESS_ALL[k], b.text(), score])
-
-            # Resúmenes solicitados
-            sums = sam_stress_summary(scores_by_q)
-
-            # 2,16,24,26 -> stress level
-            s, label = sums["STRESS_sum"]
+    def save_to_csv(self):
+        ts = datetime.now().isoformat(timespec="seconds")
+        scores_by_q = {}
+        for i, g in enumerate(self.groups):
+            k = SAM_STRESS_SUBSET_ORDER[i]
+            b = g.checkedButton()
+            score = int(b.property("score"))
+            scores_by_q[k] = score
             append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                        "SAM_Stress_SUMMARY", "stress_level", "Stress Score", label, s/16])
+                        "SAM_Stress", f"Question{k}", SAM_STRESS_ALL[k], b.text(), score])
 
-            # 2+5 -> threat
-            s, label = sums["THREAT_sum"]
-            append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                        "SAM_Stress_SUMMARY", "threat_sum", "Threat Score", label, s/8])
+        # Resúmenes solicitados
+        sums = sam_stress_summary(scores_by_q)
 
-            # 8+19 -> challenge
-            s, label = sums["CHALLENGE_sum"]
-            append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                        "SAM_Stress_SUMMARY", "challenge_sum", "Challenge Score", label, s/8])
+        # 2,16,24,26 -> stress level
+        s, label = sums["STRESS_sum"]
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "SAM_Stress_SUMMARY", "stress_level", "Stress Score", label, s/16])
 
-            # 14+22 -> controllable-by-self
-            s, label = sums["CTRL_SELF_sum"]
-            append_row([ts, self.participant_id, self.block_id, self.stage_label,
-                        "SAM_Stress_SUMMARY", "ctrl_self_sum", "Ctrl-self score", label, s/8])
+        # 2+5 -> threat
+        s, label = sums["THREAT_sum"]
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "SAM_Stress_SUMMARY", "threat_sum", "Threat Score", label, s/8])
+
+        # 8+19 -> challenge
+        s, label = sums["CHALLENGE_sum"]
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "SAM_Stress_SUMMARY", "challenge_sum", "Challenge Score", label, s/8])
+
+        # 14+22 -> controllable-by-self
+        s, label = sums["CTRL_SELF_sum"]
+        append_row([ts, self.participant_id, self.block_id, self.stage_label,
+                    "SAM_Stress_SUMMARY", "ctrl_self_sum", "Ctrl-self score", label, s/8])
 
 # =========================
 # PÁGINAS DE FLUJO
