@@ -103,7 +103,7 @@ At start up:
     - Instructions text & alignment: pass instructions=... and instr_align=... to QuestionGroup, or add a QLabel under the page title (as done for SAM).
     - Messages between blocks: edit the text in the transition pages.
 
-## Test results interpretations
+## 🔎 Test results interpretations
 
 The system saves each response and adds summary rows per instrument in the CSV with the following columns:
 
@@ -128,6 +128,7 @@ In the summary rows (or score sum), *response* usually contains the interpretati
     - instrument=BAI_SUMMARY, item_code=total, item_text=Total (0–63), response=<interpretación>, score=<suma>
 
 --- 
+
 ### PSS — Perceived Stress Scale (14 items)
 - Scale per ítem: 0–4
 - Reversed items : 4, 5, 6, 7, 9, 10, 13 (scored as 4-0).
@@ -138,6 +139,8 @@ In the summary rows (or score sum), *response* usually contains the interpretati
     - 38–56 → High stress
 - CSV (summary):
     - instrument=PSS_TOTAL, item_code=sum, item_text=Suma de 14 ítems, response=<interpretación>, score=<suma>
+
+---
 
 ### PANAS — Positive and Negative Affect Schedule (short form)
 
@@ -165,6 +168,8 @@ In the summary rows (or score sum), *response* usually contains the interpretati
     - instrument=PANAS_SUMMARY, item_code=PA_cat|NA_cat|Balance_cat, response=<Low/Moderate/High or Balance>, score=""
     - instrument=PANAS_SUMMARY, item_code=Overall, item_text=Overall affective state, response=<Optimal/Distress/Ambivalent/Blunted affect/...>, score=""
 
+---
+
 ### SAM-Manikin — Valence / Arousal / Dominance
 
 - Per-dimension scale: 1–9 (the midpoint is 5).
@@ -182,6 +187,8 @@ In the summary rows (or score sum), *response* usually contains the interpretati
 - CSV (summary rows):
     - instrument=SAM_Manikin_SUMMARY, item_code=quadrant, item_text=Quadrant by Valence–Arousal, response=<Q...>, score=""
     - instrument=SAM_Manikin_SUMMARY, item_code=interpretation, item_text=Emotion, response=<emotion>, score=""
+
+---
 
 ### SAM-Stress — Subscales and normalization
 
@@ -206,6 +213,7 @@ In the summary rows (or score sum), *response* usually contains the interpretati
     - instrument=SAM_Stress_SUMMARY, item_code=threat_sum, item_text=Threat Score, response=<Low/Moderate/High threat>, score=<sum/8>
     - instrument=SAM_Stress_SUMMARY, item_code=challenge_sum, item_text=Challenge Score, response=<Low/Moderate/High challenge>, score=<sum/8>
     - instrument=SAM_Stress_SUMMARY, item_code=ctrl_self_sum, item_text=Ctrl-self score,response=<Low/Moderate/High controllable-by-self>, score=<sum/8>
+
 ---
 
 ## 📕 Language
