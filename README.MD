@@ -221,6 +221,23 @@ In the summary rows (or score sum), *response* usually contains the interpretati
 - You can translate items or add new language versions by duplicating the item lists.
 
 ## 📜 License
-This project is licensed under the **MIT License**.  
+This project’s **source code** is licensed under the **MIT License**.  
 Copyright © 2025 Amaury Santiago Horta.
 See the [LICENSE](LICENSE) file for details.
+
+> **Note:** The work’s title and branding — “Formulario de Estrés y Emociones Reportado (FEER)” and “FEER” — are claimed as trademarks (™) and are **not** covered by the MIT License.
+
+## 🔖 Work Title & Naming Notice
+
+The work is published under the title **“Formulario de Estrés y Emociones Reportado (FEER)”**.
+“**FEER**” and “**Formulario de Estrés y Emociones Reportado**” are claimed as trademarks (™) by
+Amaury Santiago Horta.
+
+- The **source code** is licensed under MIT (see [LICENSE](LICENSE)).
+- The **name/branding** (“FEER”, logo, and visual identity) are **not** licensed under MIT.
+  Any use of the name or logo requires prior written permission, and must not imply endorsement.
+- Forks or derivatives **must not** present themselves as “FEER” or use the FEER logo or branding
+  without permission. Use a distinct name/branding for redistributed versions.
+
+© 2025 Amaury Santiago Horta. All rights reserved on the FEER name and branding.
+*If the mark is later registered, replace “™” with “®”.*
